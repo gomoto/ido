@@ -1,0 +1,13 @@
+{
+  "name": "ido",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gomoto/ido.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gomoto/ido/issues"
+  }
+}
