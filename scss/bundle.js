@@ -2,6 +2,7 @@
 
 var autoprefixer = require('gulp-autoprefixer')
 var deepExtend = require('deep-extend')
+var fs = require('fs')
 var gulp = require('gulp')
 var rename = require('gulp-rename')
 var rev = require('gulp-rev')
@@ -9,6 +10,7 @@ var sass = require('gulp-sass')
 var sourcemaps = require('gulp-sourcemaps')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
+var FileDoesNotExistException = exceptions.FileDoesNotExistException
 
 /**
  * Create css bundle from scss files.
@@ -20,6 +22,10 @@ var IllegalArgumentException = exceptions.IllegalArgumentException
 function bundleScss(entryPath, bundlePath, options) {
   if (typeof entryPath !== 'string') throw new IllegalArgumentException('entryPath')
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
+
+  // Fail if a file does not exist at entryPath.
+  // gulp.src does not check if file exists.
+  if (!fs.existsSync(entryPath)) throw new FileDoesNotExistException(entryPath)
 
   options = deepExtend({
     rev: true,
