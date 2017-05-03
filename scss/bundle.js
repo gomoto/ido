@@ -12,14 +12,14 @@ var IllegalArgumentException = exceptions.IllegalArgumentException
 
 /**
  * Create css bundle from scss files.
- * @param  {string} entry
- * @param  {string} bundle
+ * @param  {string} entryPath
+ * @param  {string} bundlePath
  * @param  {Object} options
  * @return {Promise}
  */
-function bundleScss(entry, bundle, options) {
-  if (typeof entry !== 'string') throw new IllegalArgumentException('entry')
-  if (typeof bundle !== 'string') throw new IllegalArgumentException('bundle')
+function bundleScss(entryPath, bundlePath, options) {
+  if (typeof entryPath !== 'string') throw new IllegalArgumentException('entryPath')
+  if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
     rev: true,
@@ -27,7 +27,7 @@ function bundleScss(entry, bundle, options) {
   }, options)
 
   return new Promise((resolve, reject) => {
-    var stream = gulp.src(entry)
+    var stream = gulp.src(entryPath)
     if (options.sourcemaps) {
       stream = stream.pipe(sourcemaps.init())
     }
@@ -39,7 +39,7 @@ function bundleScss(entry, bundle, options) {
       })
     )
     .pipe(autoprefixer({ browsers: ['last 2 versions'] }))
-    .pipe(rename(bundle))
+    .pipe(rename(bundlePath))
     if (options.rev) {
       stream = stream.pipe(rev())
     }
