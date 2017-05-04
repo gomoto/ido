@@ -20,10 +20,10 @@ var _typescriptBundles = {}
 /**
  * Create browserify bundle.
  * @param {string} entryPath
- * @param {string} tsconfigPath
+ * @param {Object} options
  * @return {BrowserifyBundle}
  */
-function _createBundle(entryPath, tsconfigPath) {
+function _createBundle(entryPath, options) {
   var browserifyBundle = browserify({
     cache: {},
     packageCache: {},
@@ -32,12 +32,13 @@ function _createBundle(entryPath, tsconfigPath) {
   })
 
   // Transpile TypeScript.
-  browserifyBundle.plugin(tsify, { project: tsconfigPath })
+  browserifyBundle.plugin(tsify, { project: options.tsconfig })
 
-  // Exclude vendors from main bundle.
-  // forEachVendor((vendor) => {
-  //   browserifyBundle.external(vendor)
-  // })
+  // Exclude some modules from main bundle.
+  options.external.forEach((external) => {
+    browserifyBundle.external(external)
+  })
+
   return browserifyBundle
 }
 
@@ -87,6 +88,7 @@ function bundleTypescript(entryPath, bundlePath, options) {
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
+    external: [],
     rev: true,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
@@ -95,7 +97,7 @@ function bundleTypescript(entryPath, bundlePath, options) {
 
   var typescriptBundle = _typescriptBundles[options.tsconfig]
   if (!typescriptBundle) {
-    typescriptBundle = _createBundle(entryPath, options.tsconfig)
+    typescriptBundle = _createBundle(entryPath, options)
     _typescriptBundles[options.tsconfig] = typescriptBundle
   }
   return _bundle(typescriptBundle, bundlePath, options)
