@@ -7,19 +7,19 @@ var gulp = require('gulp')
 var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
+var path = require('path')
 var vinylSourceStream = require('vinyl-source-stream')
-var tsify = require('tsify')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
 /**
- * Track typescript bundles for incremental builds.
+ * Track npm bundles for incremental builds.
  */
-var _typescriptBundles = {}
+var _npmBundles = {}
 
 /**
  * Create browserify bundle.
- * @param {string} entryPath
+ * @param {string} entryPath path to package.json
  * @param {Object} options
  * @return {BrowserifyBundle}
  */
@@ -27,18 +27,21 @@ function _createBundle(entryPath, options) {
   var browserifyBundle = browserify({
     cache: {},
     packageCache: {},
-    entries: [entryPath],
     debug: options.sourcemaps
   })
-
-  // Transpile TypeScript.
-  browserifyBundle.plugin(tsify, { project: options.tsconfig })
-
-  // Exclude some modules from main bundle.
-  options.external.forEach((external) => {
-    browserifyBundle.external(external)
+  // If path is relative, require package.json relative to cwd.
+  if (!path.isAbsolute(entryPath)) {
+    entryPath = path.normalize(path.join(process.cwd(), entryPath))
+  }
+  const packageJson = require(entryPath)
+  const vendors = Object.keys(packageJson.dependencies)
+  vendors.forEach((vendor) => {
+    // node_modules will be installed next to manifest.
+    browserifyBundle.require(`./node_modules/${vendor}`, {
+      basedir: path.dirname(entryPath),
+      expose: vendor
+    })
   })
-
   return browserifyBundle
 }
 
@@ -77,30 +80,28 @@ function _bundle(browserifyBundle, bundlePath, options) {
 }
 
 /**
- * Bundle TypeScript modules.
- * @param {string} entryPath
+ * Bundle npm modules.
+ * @param {string} entryPath path to package.json
  * @param {string} bundlePath
  * @param {Object} options
  * @return {Promise}
  */
-function bundleTypescript(entryPath, bundlePath, options) {
+function bundleNpm(entryPath, bundlePath, options) {
   if (typeof entryPath !== 'string') throw new IllegalArgumentException('entryPath')
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
-    external: [],
     rev: true,
     sourcemaps: false,
-    tsconfig: './tsconfig.json',
     uglify: true
   }, options)
 
-  var typescriptBundle = _typescriptBundles[options.tsconfig]
-  if (!typescriptBundle) {
-    typescriptBundle = _createBundle(entryPath, options)
-    _typescriptBundles[options.tsconfig] = typescriptBundle
+  var npmBundle = _npmBundles[options.tsconfig]
+  if (!npmBundle) {
+    npmBundle = _createBundle(entryPath, options)
+    _npmBundles[options.tsconfig] = npmBundle
   }
-  return _bundle(typescriptBundle, bundlePath, options)
+  return _bundle(npmBundle, bundlePath, options)
 }
 
-module.exports = bundleTypescript
+module.exports = bundleNpm
