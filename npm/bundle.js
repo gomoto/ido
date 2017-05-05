@@ -107,7 +107,7 @@ function bundleNpm(entryPath, bundlePath, options) {
     manifest: '',
     rev: false,
     sourcemaps: false,
-    minify: true
+    minify: false
   }, options)
 
   var npmBundle = _npmBundles[options.tsconfig]

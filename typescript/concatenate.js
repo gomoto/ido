@@ -48,7 +48,7 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
-    minify: true
+    minify: false
   }, options)
 
   return new Promise((resolve, reject) => {

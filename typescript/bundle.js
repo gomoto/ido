@@ -102,7 +102,7 @@ function bundleTypescript(entryPath, bundlePath, options) {
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
-    minify: true
+    minify: false
   }, options)
 
   var typescriptBundle = _typescriptBundles[options.tsconfig]

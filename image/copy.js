@@ -21,7 +21,7 @@ function copyImages(srcGlob, destDir, options) {
 
   options = deepExtend({
     manifest: '',
-    minify: true,
+    minify: false,
     rev: false
   }, options)
 

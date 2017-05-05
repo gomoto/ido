@@ -29,7 +29,7 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
     manifest: '',
     rev: false,
     sourcemaps: false,
-    minify: true
+    minify: false
   }, options)
 
   // If bower.json path is relative, require it relative to cwd.

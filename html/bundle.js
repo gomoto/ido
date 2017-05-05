@@ -24,7 +24,7 @@ function bundleHtml(entryPath, bundlePath, options) {
 
   options = deepExtend({
     inject: {},
-    minify: true,
+    minify: false,
     revManifestPaths: []
   }, options)
 
