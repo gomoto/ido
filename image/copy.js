@@ -20,7 +20,6 @@ function copyImages(srcGlob, destDir, options) {
   if (typeof destDir !== 'string') throw new IllegalArgumentException('destDir')
 
   options = deepExtend({
-    // image manifest location is relative to destDir
     manifest: '',
     minify: true,
     rev: true
