@@ -37,6 +37,10 @@ function _createBundle(entryPath, options) {
   const packageJson = require(entryPath)
   const vendors = Object.keys(packageJson.dependencies)
   vendors.forEach((vendor) => {
+    // skip @types
+    if (vendor.includes('@types')) {
+      return
+    }
     // node_modules will be installed next to manifest.
     browserifyBundle.require(`./node_modules/${vendor}`, {
       basedir: path.dirname(entryPath),
