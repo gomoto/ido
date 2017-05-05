@@ -4,6 +4,7 @@ var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpImagemin = require('gulp-imagemin')
 var gulpRev = require('gulp-rev')
+var mergeStream = require('merge-stream')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -35,8 +36,10 @@ function copyImages(srcGlob, destDir, options) {
     }
     stream = stream.pipe(gulp.dest(destDir))
     if (options.manifest) {
-      stream = stream.pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(destDir))
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
     }
     stream.on('finish', () => {
       resolve()
