@@ -55,6 +55,8 @@ function bundleScss(entryPath, bundlePath, options) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
     stream = stream.pipe(gulp.dest('.'))
+
+    // Record rev in manifest.
     if (options.manifest) {
       var manifestStream = stream
       .pipe(gulpRev.manifest(options.manifest))

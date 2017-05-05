@@ -7,6 +7,7 @@ var gulp = require('gulp')
 var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
+var mergeStream = require('merge-stream')
 var vinylSourceStream = require('vinyl-source-stream')
 var tsify = require('tsify')
 var exceptions = require('../exceptions')
@@ -69,8 +70,16 @@ function _bundle(browserifyBundle, bundlePath, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream.pipe(gulp.dest('.'))
-    .on('finish', () => {
+    stream = stream.pipe(gulp.dest('.'))
+
+    // Record rev in manifest.
+    if (options.manifest) {
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
+    }
+    stream.on('finish', () => {
       resolve()
     })
   })

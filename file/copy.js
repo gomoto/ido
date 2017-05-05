@@ -29,6 +29,8 @@ function copyFiles(srcGlob, destDir, options) {
       stream = stream.pipe(gulpRev())
     }
     stream = stream.pipe(gulp.dest(destDir))
+
+    // Record rev in manifest.
     if (options.manifest) {
       var manifestStream = stream
       .pipe(gulpRev.manifest(options.manifest))
