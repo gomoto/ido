@@ -30,7 +30,7 @@ function bundleScss(entryPath, bundlePath, options) {
 
   options = deepExtend({
     manifest: '',
-    rev: true,
+    rev: false,
     sourcemaps: true
   }, options)
 

@@ -45,7 +45,7 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
 
   options = deepExtend({
     manifest: '',
-    rev: true,
+    rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
     uglify: true

@@ -101,7 +101,7 @@ function bundleNpm(entryPath, bundlePath, options) {
 
   options = deepExtend({
     manifest: '',
-    rev: true,
+    rev: false,
     sourcemaps: false,
     uglify: true
   }, options)

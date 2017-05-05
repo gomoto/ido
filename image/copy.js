@@ -22,7 +22,7 @@ function copyImages(srcGlob, destDir, options) {
   options = deepExtend({
     manifest: '',
     minify: true,
-    rev: true
+    rev: false
   }, options)
 
   return new Promise((resolve, reject) => {

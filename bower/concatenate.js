@@ -27,7 +27,7 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
 
   options = deepExtend({
     manifest: '',
-    rev: true,
+    rev: false,
     sourcemaps: false,
     uglify: true
   }, options)

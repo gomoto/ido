@@ -20,7 +20,7 @@ function copyFiles(srcGlob, destDir, options) {
 
   options = deepExtend({
     manifest: '',
-    rev: true
+    rev: false
   }, options)
 
   return new Promise((resolve, reject) => {
