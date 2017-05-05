@@ -7,6 +7,7 @@ var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpTypescript = require('gulp-typescript')
 var gulpUglify = require('gulp-uglify')
+var mergeStream = require('merge-stream')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -43,6 +44,7 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
+    manifest: '',
     rev: true,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
@@ -66,8 +68,16 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream.pipe(gulp.dest('.'))
-    .on('finish', () => {
+    stream = stream.pipe(gulp.dest('.'))
+
+    // Record rev in manifest.
+    if (options.manifest) {
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
+    }
+    stream.on('finish', () => {
       resolve()
     })
   })

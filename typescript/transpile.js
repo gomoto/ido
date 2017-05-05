@@ -4,6 +4,7 @@ var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpTypescript = require('gulp-typescript')
+var mergeStream = require('merge-stream')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -40,6 +41,7 @@ function transpileTypescript(srcGlob, destDir, options) {
   if (typeof destDir !== 'string') throw new IllegalArgumentException('destDir')
 
   options = deepExtend({
+    manifest: '',
     sourcemaps: false,
     tsconfig: './tsconfig.json'
   }, options)
@@ -54,8 +56,16 @@ function transpileTypescript(srcGlob, destDir, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream.pipe(gulp.dest(destDir))
-    .on('finish', () => {
+    stream = stream.pipe(gulp.dest(destDir))
+
+    // Record rev in manifest.
+    if (options.manifest) {
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
+    }
+    stream.on('finish', () => {
       resolve()
     })
   })

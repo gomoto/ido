@@ -98,6 +98,7 @@ function bundleTypescript(entryPath, bundlePath, options) {
 
   options = deepExtend({
     external: [],
+    manifest: '',
     rev: true,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
