@@ -28,6 +28,7 @@ function bundleScss(entryPath, bundlePath, options) {
   if (!fs.existsSync(entryPath)) throw new FileDoesNotExistException(entryPath)
 
   options = deepExtend({
+    manifest: '',
     rev: true,
     sourcemaps: true
   }, options)
@@ -52,8 +53,13 @@ function bundleScss(entryPath, bundlePath, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream.pipe(gulp.dest('.'))
-    .on('finish', () => {
+    stream = stream.pipe(gulp.dest('.'))
+    if (options.manifest) {
+      stream.pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+    }
+    // TODO: wait for scss stream and manifest stream to finish before resolve.
+    stream.on('finish', () => {
       resolve()
     })
   })
