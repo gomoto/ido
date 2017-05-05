@@ -3,6 +3,7 @@
 var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpRev = require('gulp-rev')
+var mergeStream = require('merge-stream')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -18,6 +19,7 @@ function copyFiles(srcGlob, destDir, options) {
   if (typeof destDir !== 'string') throw new IllegalArgumentException('destDir')
 
   options = deepExtend({
+    manifest: '',
     rev: true
   }, options)
 
@@ -27,6 +29,12 @@ function copyFiles(srcGlob, destDir, options) {
       stream = stream.pipe(gulpRev())
     }
     stream = stream.pipe(gulp.dest(destDir))
+    if (options.manifest) {
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
+      .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
+    }
     stream.on('finish', () => {
       resolve()
     })
