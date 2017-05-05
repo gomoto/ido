@@ -8,6 +8,7 @@ var gulpRename = require('gulp-rename')
 var gulpRev = require('gulp-rev')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
+var mergeStream = require('merge-stream')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 var FileDoesNotExistException = exceptions.FileDoesNotExistException
@@ -55,10 +56,11 @@ function bundleScss(entryPath, bundlePath, options) {
     }
     stream = stream.pipe(gulp.dest('.'))
     if (options.manifest) {
-      stream.pipe(gulpRev.manifest(options.manifest))
+      var manifestStream = stream
+      .pipe(gulpRev.manifest(options.manifest))
       .pipe(gulp.dest(process.cwd()))
+      stream = mergeStream(stream, manifestStream)
     }
-    // TODO: wait for scss stream and manifest stream to finish before resolve.
     stream.on('finish', () => {
       resolve()
     })
