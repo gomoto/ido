@@ -29,7 +29,7 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
     manifest: '',
     rev: false,
     sourcemaps: false,
-    uglify: true
+    minify: true
   }, options)
 
   // If bower.json path is relative, require it relative to cwd.
@@ -48,7 +48,7 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
       stream = stream.pipe(gulpSourcemaps.init({ loadMaps: true }))
     }
     stream = stream.pipe(gulpConcat(bundlePath))
-    if (options.uglify) {
+    if (options.minify) {
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {

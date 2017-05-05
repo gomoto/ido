@@ -48,7 +48,7 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
-    uglify: true
+    minify: true
   }, options)
 
   return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
     var gulpTypescriptProject = getGulpTypescriptProject(options.tsconfig)
     stream = stream.pipe(gulpTypescriptProject())
     stream = stream.pipe(gulpConcat(bundlePath))
-    if (options.uglify) {
+    if (options.minify) {
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {

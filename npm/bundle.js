@@ -68,7 +68,7 @@ function _bundle(browserifyBundle, bundlePath, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.init({ loadMaps: true }))
     }
-    if (options.uglify) {
+    if (options.minify) {
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {
@@ -107,7 +107,7 @@ function bundleNpm(entryPath, bundlePath, options) {
     manifest: '',
     rev: false,
     sourcemaps: false,
-    uglify: true
+    minify: true
   }, options)
 
   var npmBundle = _npmBundles[options.tsconfig]

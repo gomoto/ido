@@ -61,7 +61,7 @@ function _bundle(browserifyBundle, bundlePath, options) {
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.init({ loadMaps: true }))
     }
-    if (options.uglify) {
+    if (options.minify) {
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {
@@ -102,7 +102,7 @@ function bundleTypescript(entryPath, bundlePath, options) {
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
-    uglify: true
+    minify: true
   }, options)
 
   var typescriptBundle = _typescriptBundles[options.tsconfig]
