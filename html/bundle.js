@@ -3,6 +3,7 @@
 var deepExtend = require('deep-extend')
 var fs = require('fs')
 var gulp = require('gulp')
+var gulpFile = require('gulp-file')
 var htmlInjector = require('html-injector')
 var htmlMinifierStream = require('html-minifier-stream')
 var gulpRevReplace = require('gulp-rev-replace')
@@ -25,7 +26,6 @@ function bundleHtml(entryPath, bundlePath, options) {
   options = deepExtend({
     inject: {},
     minify: false,
-    revManifestPaths: []
   }, options)
 
   return new Promise((resolve, reject) => {
@@ -43,9 +43,10 @@ function bundleHtml(entryPath, bundlePath, options) {
     .pipe(vinylBuffer())
 
     // Replace revision hashes.
-    if (options.revManifestPaths) {
+    if (options.manifests) {
+      var superManifest = deepExtend({}, ...options.manifests)
       stream = stream.pipe(gulpRevReplace({
-        manifest: gulp.src(options.revManifestPaths)
+        manifest: gulpFile('_', JSON.stringify(superManifest), {src: true})
       }))
     }
     stream.pipe(gulp.dest('.'))
