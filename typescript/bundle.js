@@ -7,7 +7,7 @@ var gulp = require('gulp')
 var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
-var mergeStream = require('merge-stream')
+var path = require('path')
 var vinylSourceStream = require('vinyl-source-stream')
 var tsify = require('tsify')
 var exceptions = require('../exceptions')
@@ -51,6 +51,13 @@ function _createBundle(entryPath, options) {
  * @return {Promise}
  */
 function _bundle(browserifyBundle, bundlePath, options) {
+  var metadata = {
+    bundle: {
+      name: '',
+      originalName: path.basename(bundlePath)
+    }
+  }
+
   return new Promise((resolve, reject) => {
     var stream = browserifyBundle.bundle()
     .on('error', (err) => {
@@ -67,20 +74,17 @@ function _bundle(browserifyBundle, bundlePath, options) {
     if (options.rev) {
       stream = stream.pipe(gulpRev())
     }
+    // Record bundle name.
+    // Do this before gulp-sourcemaps adds a file to the stream.
+    stream.on('data', (file) => {
+      metadata.bundle.name = path.basename(file.path)
+    })
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream = stream.pipe(gulp.dest('.'))
-
-    // Record rev in manifest.
-    if (options.manifest) {
-      var manifestStream = stream
-      .pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(process.cwd()))
-      stream = mergeStream(stream, manifestStream)
-    }
-    stream.on('finish', () => {
-      resolve()
+    stream.pipe(gulp.dest('.'))
+    .on('finish', () => {
+      resolve(metadata)
     })
   })
 }
@@ -98,7 +102,6 @@ function bundleTypescript(entryPath, bundlePath, options) {
 
   options = deepExtend({
     external: [],
-    manifest: '',
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',

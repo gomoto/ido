@@ -8,7 +8,6 @@ var gulpRename = require('gulp-rename')
 var gulpRev = require('gulp-rev')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
-var mergeStream = require('merge-stream')
 var path = require('path')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
