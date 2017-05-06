@@ -9,9 +9,9 @@ var IllegalArgumentException = exceptions.IllegalArgumentException
 
 /**
  * Copy images, optionally minifying and revisioning them.
- * @param  {string} srcGlob glob for source files
- * @param  {string} destDir destination directory
- * @param  {Object} options
+ * @param {string} srcGlob glob for source files
+ * @param {string} destDir destination directory
+ * @param {Object} options
  * @return {Promise}
  */
 function copyImages(srcGlob, destDir, options) {
