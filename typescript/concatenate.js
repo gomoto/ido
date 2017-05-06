@@ -3,11 +3,10 @@
 var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpConcat = require('gulp-concat')
-var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpTypescript = require('gulp-typescript')
 var gulpUglify = require('gulp-uglify')
-var mergeStream = require('merge-stream')
+var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -44,12 +43,13 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
-    manifest: '',
     rev: false,
     sourcemaps: false,
     tsconfig: './tsconfig.json',
     minify: false
   }, options)
+
+  var manifest = {}
 
   return new Promise((resolve, reject) => {
     var stream = gulp.src(srcGlob)
@@ -63,22 +63,14 @@ function concatenateTypescript(srcGlob, bundlePath, options) {
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {
-      stream = stream.pipe(gulpRev())
+      stream = helpers.reviseFileName(stream, manifest)
     }
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream = stream.pipe(gulp.dest('.'))
-
-    // Record rev in manifest.
-    if (options.manifest) {
-      var manifestStream = stream
-      .pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(process.cwd()))
-      stream = mergeStream(stream, manifestStream)
-    }
-    stream.on('finish', () => {
-      resolve()
+    stream.pipe(gulp.dest('.'))
+    .on('finish', () => {
+      resolve(manifest)
     })
   })
 }

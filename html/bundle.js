@@ -5,7 +5,7 @@ var fs = require('fs')
 var gulp = require('gulp')
 var htmlInjector = require('html-injector')
 var htmlMinifierStream = require('html-minifier-stream')
-var gulpRevReplace = require('gulp-rev-replace')
+var gulpReplace = require('gulp-replace')
 var vinylBuffer = require('vinyl-buffer')
 var vinylSourceStream = require('vinyl-source-stream')
 var exceptions = require('../exceptions')
@@ -25,7 +25,6 @@ function bundleHtml(entryPath, bundlePath, options) {
   options = deepExtend({
     inject: {},
     minify: false,
-    revManifestPaths: []
   }, options)
 
   return new Promise((resolve, reject) => {
@@ -42,11 +41,12 @@ function bundleHtml(entryPath, bundlePath, options) {
     stream = stream.pipe(vinylSourceStream(bundlePath))
     .pipe(vinylBuffer())
 
-    // Replace revision hashes.
-    if (options.revManifestPaths) {
-      stream = stream.pipe(gulpRevReplace({
-        manifest: gulp.src(options.revManifestPaths)
-      }))
+    // Replace revised file names.
+    if (options.manifests) {
+      var manifest = deepExtend({}, ...options.manifests)
+      Object.keys(manifest).forEach((manifestKey) => {
+        stream = stream.pipe(gulpReplace(manifestKey, manifest[manifestKey]))
+      })
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {

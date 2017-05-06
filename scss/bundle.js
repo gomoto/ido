@@ -5,19 +5,18 @@ var deepExtend = require('deep-extend')
 var fs = require('fs')
 var gulp = require('gulp')
 var gulpRename = require('gulp-rename')
-var gulpRev = require('gulp-rev')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
-var mergeStream = require('merge-stream')
+var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 var FileDoesNotExistException = exceptions.FileDoesNotExistException
 
 /**
  * Create css bundle from scss files.
- * @param  {string} entryPath
- * @param  {string} bundlePath
- * @param  {Object} options
+ * @param {string} entryPath
+ * @param {string} bundlePath
+ * @param {Object} options
  * @return {Promise}
  */
 function bundleScss(entryPath, bundlePath, options) {
@@ -29,10 +28,11 @@ function bundleScss(entryPath, bundlePath, options) {
   if (!fs.existsSync(entryPath)) throw new FileDoesNotExistException(entryPath)
 
   options = deepExtend({
-    manifest: '',
     rev: false,
     sourcemaps: true
   }, options)
+
+  var manifest = {}
 
   return new Promise((resolve, reject) => {
     var stream = gulp.src(entryPath)
@@ -49,22 +49,14 @@ function bundleScss(entryPath, bundlePath, options) {
     .pipe(gulpAutoprefixer({ browsers: ['last 2 versions'] }))
     .pipe(gulpRename(bundlePath))
     if (options.rev) {
-      stream = stream.pipe(gulpRev())
+      stream = helpers.reviseFileName(stream, manifest)
     }
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream = stream.pipe(gulp.dest('.'))
-
-    // Record rev in manifest.
-    if (options.manifest) {
-      var manifestStream = stream
-      .pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(process.cwd()))
-      stream = mergeStream(stream, manifestStream)
-    }
-    stream.on('finish', () => {
-      resolve()
+    stream.pipe(gulp.dest('.'))
+    .on('finish', () => {
+      resolve(manifest)
     })
   })
 }
