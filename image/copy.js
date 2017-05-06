@@ -3,8 +3,7 @@
 var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpImagemin = require('gulp-imagemin')
-var gulpRev = require('gulp-rev')
-var mergeStream = require('merge-stream')
+var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -20,10 +19,11 @@ function copyImages(srcGlob, destDir, options) {
   if (typeof destDir !== 'string') throw new IllegalArgumentException('destDir')
 
   options = deepExtend({
-    manifest: '',
     minify: false,
     rev: false
   }, options)
+
+  var manifest = {}
 
   return new Promise((resolve, reject) => {
     var stream = gulp.src(srcGlob)
@@ -31,19 +31,11 @@ function copyImages(srcGlob, destDir, options) {
       stream = stream.pipe(gulpImagemin())
     }
     if (options.rev) {
-      stream = stream.pipe(gulpRev())
+      stream = helpers.reviseFileName(stream, manifest)
     }
-    stream = stream.pipe(gulp.dest(destDir))
-
-    // Record rev in manifest.
-    if (options.manifest) {
-      var manifestStream = stream
-      .pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(process.cwd()))
-      stream = mergeStream(stream, manifestStream)
-    }
-    stream.on('finish', () => {
-      resolve()
+    stream.pipe(gulp.dest(destDir))
+    .on('finish', () => {
+      resolve(manifest)
     })
   })
 }
