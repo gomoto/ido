@@ -9,6 +9,7 @@ var gulpRev = require('gulp-rev')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var mergeStream = require('merge-stream')
+var path = require('path')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 var FileDoesNotExistException = exceptions.FileDoesNotExistException
@@ -29,10 +30,16 @@ function bundleScss(entryPath, bundlePath, options) {
   if (!fs.existsSync(entryPath)) throw new FileDoesNotExistException(entryPath)
 
   options = deepExtend({
-    manifest: '',
     rev: false,
     sourcemaps: true
   }, options)
+
+  var metadata = {
+    bundle: {
+      name: '',
+      originalName: path.basename(bundlePath)
+    }
+  }
 
   return new Promise((resolve, reject) => {
     var stream = gulp.src(entryPath)
@@ -51,20 +58,17 @@ function bundleScss(entryPath, bundlePath, options) {
     if (options.rev) {
       stream = stream.pipe(gulpRev())
     }
+    // Record bundle name.
+    // Do this before gulp-sourcemaps adds a file to the stream.
+    stream.on('data', (file) => {
+      metadata.bundle.name = path.basename(file.path)
+    })
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
-    stream = stream.pipe(gulp.dest('.'))
-
-    // Record rev in manifest.
-    if (options.manifest) {
-      var manifestStream = stream
-      .pipe(gulpRev.manifest(options.manifest))
-      .pipe(gulp.dest(process.cwd()))
-      stream = mergeStream(stream, manifestStream)
-    }
-    stream.on('finish', () => {
-      resolve()
+    stream.pipe(gulp.dest('.'))
+    .on('finish', () => {
+      resolve(metadata)
     })
   })
 }
