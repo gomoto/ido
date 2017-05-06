@@ -5,19 +5,18 @@ var deepExtend = require('deep-extend')
 var fs = require('fs')
 var gulp = require('gulp')
 var gulpRename = require('gulp-rename')
-var gulpRev = require('gulp-rev')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
-var path = require('path')
+var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 var FileDoesNotExistException = exceptions.FileDoesNotExistException
 
 /**
  * Create css bundle from scss files.
- * @param  {string} entryPath
- * @param  {string} bundlePath
- * @param  {Object} options
+ * @param {string} entryPath
+ * @param {string} bundlePath
+ * @param {Object} options
  * @return {Promise}
  */
 function bundleScss(entryPath, bundlePath, options) {
@@ -33,12 +32,7 @@ function bundleScss(entryPath, bundlePath, options) {
     sourcemaps: true
   }, options)
 
-  var metadata = {
-    bundle: {
-      name: '',
-      originalName: path.basename(bundlePath)
-    }
-  }
+  var manifest = {}
 
   return new Promise((resolve, reject) => {
     var stream = gulp.src(entryPath)
@@ -55,19 +49,14 @@ function bundleScss(entryPath, bundlePath, options) {
     .pipe(gulpAutoprefixer({ browsers: ['last 2 versions'] }))
     .pipe(gulpRename(bundlePath))
     if (options.rev) {
-      stream = stream.pipe(gulpRev())
+      stream = helpers.reviseFileName(stream, manifest)
     }
-    // Record bundle name.
-    // Do this before gulp-sourcemaps adds a file to the stream.
-    stream.on('data', (file) => {
-      metadata.bundle.name = path.basename(file.path)
-    })
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
-      resolve(metadata)
+      resolve(manifest)
     })
   })
 }
