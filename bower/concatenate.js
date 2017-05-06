@@ -8,6 +8,7 @@ var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
 var path = require('path')
 var wiredep = require('wiredep')
+var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
 
@@ -25,17 +26,12 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
+    minify: false,
     rev: false,
-    sourcemaps: false,
-    minify: false
+    sourcemaps: false
   }, options)
 
-  var metadata = {
-    bundle: {
-      name: '',
-      originalName: path.basename(bundlePath)
-    }
-  }
+  var manifest = {}
 
   // If bower.json path is relative, require it relative to cwd.
   if (!path.isAbsolute(bowerJsonPath)) {
@@ -57,19 +53,14 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
       stream = stream.pipe(gulpUglify())
     }
     if (options.rev) {
-      stream = stream.pipe(gulpRev())
+      stream = helpers.reviseFileName(stream, manifest)
     }
-    // Record bundle name.
-    // Do this before gulp-sourcemaps adds a file to the stream.
-    stream.on('data', (file) => {
-      metadata.bundle.name = path.basename(file.path)
-    })
     if (options.sourcemaps) {
       stream = stream.pipe(gulpSourcemaps.write('.'))
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
-      resolve()
+      resolve(manifest)
     })
   })
 }
