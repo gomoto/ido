@@ -62,7 +62,7 @@ function bundleScss(entryPath, bundlePath, options) {
       // Start livereload server if it is not yet running.
       if (options.livereload) {
         gulpLivereload.listen()
-        gulpLivereload.changed(bundlePath)
+        gulpLivereload.changed(options.livereload)
       }
       resolve(manifest)
     })
