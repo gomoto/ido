@@ -47,6 +47,11 @@ function _createBundle(entryPath, options) {
       expose: vendor
     })
   })
+
+  if (options.minifyModules) {
+    browserifyBundle.transform('uglifyify')
+  }
+
   return browserifyBundle
 }
 
@@ -105,9 +110,12 @@ function bundleNpm(entryPath, bundlePath, options) {
   if (typeof bundlePath !== 'string') throw new IllegalArgumentException('bundlePath')
 
   options = deepExtend({
+    // Minify entire bundle
+    minify: false,
+    // Minify each module in bundle. Useful in incremental development builds.
+    minifyModules: false,
     rev: false,
-    sourcemaps: false,
-    minify: false
+    sourcemaps: false
   }, options)
 
   var npmBundle = _npmBundles[options.tsconfig]

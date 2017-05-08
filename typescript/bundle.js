@@ -35,6 +35,10 @@ function _createBundle(entryPath, options) {
   // Transpile TypeScript.
   browserifyBundle.plugin(tsify, { project: options.tsconfig })
 
+  if (options.minifyModules) {
+    browserifyBundle.transform('uglifyify')
+  }
+
   // Exclude some modules from main bundle.
   options.external.forEach((external) => {
     browserifyBundle.external(external)
@@ -99,10 +103,13 @@ function bundleTypescript(entryPath, bundlePath, options) {
 
   options = deepExtend({
     external: [],
+    // Minify entire bundle
+    minify: false,
+    // Minify each module in bundle. Useful in incremental development builds.
+    minifyModules: false,
     rev: false,
     sourcemaps: false,
-    tsconfig: './tsconfig.json',
-    minify: false
+    tsconfig: './tsconfig.json'
   }, options)
 
   var typescriptBundle = _typescriptBundles[options.tsconfig]
