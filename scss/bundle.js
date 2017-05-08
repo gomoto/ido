@@ -4,6 +4,7 @@ var gulpAutoprefixer = require('gulp-autoprefixer')
 var deepExtend = require('deep-extend')
 var fs = require('fs')
 var gulp = require('gulp')
+var gulpLivereload = require('gulp-livereload')
 var gulpRename = require('gulp-rename')
 var gulpSass = require('gulp-sass')
 var gulpSourcemaps = require('gulp-sourcemaps')
@@ -56,6 +57,13 @@ function bundleScss(entryPath, bundlePath, options) {
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
+      // Manually notify livereload server: piping to gulp-livereload will
+      // trigger two reloads if sourcemaps are in the file stream.
+      // Start livereload server if it is not yet running.
+      if (options.livereload) {
+        gulpLivereload.listen()
+        gulpLivereload.changed(bundlePath)
+      }
       resolve(manifest)
     })
   })
