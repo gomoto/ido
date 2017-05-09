@@ -1,3 +1,5 @@
+'use strict'
+
 const child_process = require('child_process')
 
 /**
@@ -6,7 +8,7 @@ const child_process = require('child_process')
  * @param {string} command
  * @return {Promise}
  */
-module.exports = function spawn(command) {
+function spawn(command) {
   const commandTokens = command.split(' ')
   return new Promise((resolve, reject) => {
     child_process.spawn(commandTokens[0], commandTokens.slice(1), {
@@ -17,3 +19,5 @@ module.exports = function spawn(command) {
     })
   })
 }
+
+module.exports = spawn
