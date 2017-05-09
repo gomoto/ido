@@ -3,7 +3,6 @@
 var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpConcat = require('gulp-concat')
-var gulpLivereload = require('gulp-livereload')
 var gulpRev = require('gulp-rev')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
@@ -61,13 +60,6 @@ function concatenateBower(bowerJsonPath, bowerComponentsPath, bundlePath, option
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
-      // Manually notify livereload server: piping to gulp-livereload will
-      // trigger two reloads if sourcemaps are in the file stream.
-      // Start livereload server if it is not yet running.
-      if (options.livereload) {
-        gulpLivereload.listen()
-        gulpLivereload.changed(options.livereload)
-      }
       resolve(manifest)
     })
   })

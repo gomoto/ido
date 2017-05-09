@@ -3,7 +3,6 @@
 var deepExtend = require('deep-extend')
 var gulp = require('gulp')
 var gulpImagemin = require('gulp-imagemin')
-var gulpLivereload = require('gulp-livereload')
 var helpers = require('../helpers')
 var exceptions = require('../exceptions')
 var IllegalArgumentException = exceptions.IllegalArgumentException
@@ -36,13 +35,6 @@ function copyImages(srcGlob, destDir, options) {
     }
     stream.pipe(gulp.dest(destDir))
     .on('finish', () => {
-      // Manually notify livereload server: piping to gulp-livereload will
-      // trigger two reloads if sourcemaps are in the file stream.
-      // Start livereload server if it is not yet running.
-      if (options.livereload) {
-        gulpLivereload.listen()
-        gulpLivereload.changed(options.livereload)
-      }
       resolve(manifest)
     })
   })
