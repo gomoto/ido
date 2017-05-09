@@ -3,7 +3,6 @@
 var deepExtend = require('deep-extend')
 var fs = require('fs')
 var gulp = require('gulp')
-var gulpLivereload = require('gulp-livereload')
 var htmlInjector = require('html-injector')
 var htmlMinifierStream = require('html-minifier-stream')
 var gulpReplace = require('gulp-replace')
@@ -51,13 +50,6 @@ function bundleHtml(entryPath, bundlePath, options) {
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
-      // Manually notify livereload server: piping to gulp-livereload will
-      // trigger two reloads if sourcemaps are in the file stream.
-      // Start livereload server if it is not yet running.
-      if (options.livereload) {
-        gulpLivereload.listen()
-        gulpLivereload.changed(options.livereload)
-      }
       resolve()
     })
   })

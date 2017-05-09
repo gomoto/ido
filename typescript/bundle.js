@@ -4,7 +4,6 @@ var deepExtend = require('deep-extend')
 var browserify = require('browserify-incremental')
 var vinylBuffer = require('vinyl-buffer')
 var gulp = require('gulp')
-var gulpLivereload = require('gulp-livereload')
 var gulpSourcemaps = require('gulp-sourcemaps')
 var gulpUglify = require('gulp-uglify')
 var vinylSourceStream = require('vinyl-source-stream')
@@ -78,13 +77,6 @@ function _bundle(browserifyBundle, bundlePath, options) {
     }
     stream.pipe(gulp.dest('.'))
     .on('finish', () => {
-      // Manually notify livereload server: piping to gulp-livereload will
-      // trigger two reloads if sourcemaps are in the file stream.
-      // Start livereload server if it is not yet running.
-      if (options.livereload) {
-        gulpLivereload.listen()
-        gulpLivereload.changed(options.livereload)
-      }
       resolve(manifest)
     })
   })
