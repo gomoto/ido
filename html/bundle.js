@@ -35,6 +35,7 @@ function bundleHtml(entryPath, bundlePath, options) {
     if (options.minify) {
       stream = stream.pipe(htmlMinifierStream({
         collapseWhitespace: true,
+        collapseInlineTagWhitespace: true,
         processScripts: ['text/ng-template']
       }))
     }
